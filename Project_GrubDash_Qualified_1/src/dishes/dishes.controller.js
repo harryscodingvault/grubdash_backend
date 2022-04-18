@@ -69,6 +69,17 @@ const getDishById = (req, res, next) => {
   res.status(201).json({ data: res.locals.dish });
 };
 
+const updateDishById = (req, res, next) => {
+  const dish = res.locals.dish;
+  const { data: { id, name, description, price, image_url } = {} } = req.body;
+  dish.id = id;
+  dish.name = name;
+  dish.description = description;
+  dish.price = price;
+  dish.image_url = image_url;
+  res.status(201).json({ data: dish });
+};
+
 module.exports = {
   list,
   createDish: [
@@ -79,4 +90,12 @@ module.exports = {
     createDish,
   ],
   getDishById: [hasIdParam, getDishById],
+  updateDishById: [
+    hasIdParam,
+    bodyHasProperty("name"),
+    bodyHasProperty("description"),
+    bodyHasProperty("price"),
+    bodyHasProperty("image_url"),
+    updateDishById,
+  ],
 };
