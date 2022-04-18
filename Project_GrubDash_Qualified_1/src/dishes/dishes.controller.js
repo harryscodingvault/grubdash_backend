@@ -72,7 +72,7 @@ const getDishById = (req, res, next) => {
 const updateDishById = (req, res, next) => {
   const dish = res.locals.dish;
   const { data: { id, name, description, price, image_url } = {} } = req.body;
-  dish.id = id;
+
   dish.name = name;
   dish.description = description;
   dish.price = price;

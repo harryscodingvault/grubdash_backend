@@ -79,6 +79,18 @@ const getOrderById = (req, res, next) => {
   res.json({ data: res.locals.order });
 };
 
+const updateOrderById = (req, res, next) => {
+  const order = res.locals.order;
+  const { data: { id, deliverTo, mobileNumber, dishes, quantity } = {} } =
+    req.body;
+
+  order.deliverTo = deliverTo;
+  order.mobileNumber = mobileNumber;
+  order.dishes = dishes;
+  order.quantity = quantity;
+  res.status(201).json({ data: order });
+};
+
 module.exports = {
   list,
   createOrder: [
@@ -88,4 +100,11 @@ module.exports = {
     createOrder,
   ],
   getOrderById: [hasIdParam, getOrderById],
+  updateOrderById: [
+    hasIdParam,
+    bodyHasProperty("deliverTo"),
+    bodyHasProperty("mobileNumber"),
+    bodyHasProperty("dishes"),
+    updateOrderById,
+  ],
 };
