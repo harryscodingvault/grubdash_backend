@@ -43,6 +43,20 @@ const bodyHasProperty = (propertyName) => {
   };
 };
 
+const hasIdParam = (req, res, next) => {
+  const { orderId } = req.params;
+  const foundItem = orders.find((item) => item.id === orderId);
+
+  if (foundItem) {
+    res.locals.order = foundItem;
+    return next();
+  }
+  next({
+    status: 400,
+    message: `Order id is not found: ${orderId}`,
+  });
+};
+
 // Functions routes
 const list = (req, res) => {
   res.json({ data: orders });
@@ -61,6 +75,10 @@ const createOrder = (req, res, next) => {
   res.status(201).json({ data: newOrder });
 };
 
+const getOrderById = (req, res, next) => {
+  res.json({ data: res.locals.order });
+};
+
 module.exports = {
   list,
   createOrder: [
@@ -69,4 +87,5 @@ module.exports = {
     bodyHasProperty("dishes"),
     createOrder,
   ],
+  getOrderById: [hasIdParam, getOrderById],
 };
