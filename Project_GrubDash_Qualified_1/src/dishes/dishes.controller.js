@@ -8,9 +8,7 @@ const nextId = require("../utils/nextId");
 
 // TODO: Implement the /dishes handlers needed to make the tests pass
 
-const list = (req, res) => {
-  res.json({ data: dishes });
-};
+// Functions utils
 
 const bodyHasProperty = (propertyName) => {
   return (req, res, next) => {
@@ -33,6 +31,27 @@ const bodyHasProperty = (propertyName) => {
   };
 };
 
+const hasIdParam = (req, res, next) => {
+  const { dishId } = req.params;
+  const foundItem = dishes.find((item) => item.id === dishId);
+
+  if (foundItem) {
+    res.locals.dish = foundItem;
+
+    return next();
+  }
+  next({
+    status: 400,
+    message: `Dish id is not found: ${dishId}`,
+  });
+};
+
+// Functions routes
+
+const list = (req, res) => {
+  res.json({ data: dishes });
+};
+
 const createDish = (req, res, next) => {
   const { data: { name, description, price, image_url } = {} } = req.body;
   const newDish = {
@@ -46,6 +65,10 @@ const createDish = (req, res, next) => {
   res.status(201).json({ data: newDish });
 };
 
+const getDishById = (req, res, next) => {
+  res.status(201).json({ data: res.locals.dish });
+};
+
 module.exports = {
   list,
   createDish: [
@@ -55,4 +78,5 @@ module.exports = {
     bodyHasProperty("image_url"),
     createDish,
   ],
+  getDishById: [hasIdParam, getDishById],
 };
