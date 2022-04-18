@@ -15,7 +15,10 @@ const bodyHasProperty = (propertyName) => {
     const { data = {} } = req.body;
     if (data[propertyName] && data[propertyName] !== "") {
       if (propertyName === "dishes") {
-        if (!Array.isArray(data[propertyName]) || data[propertyName] === []) {
+        if (
+          !Array.isArray(data[propertyName]) ||
+          data[propertyName].length === 0
+        ) {
           next({
             status: 400,
             message: `Order must include at least one dish`,
@@ -25,7 +28,7 @@ const bodyHasProperty = (propertyName) => {
           if (!Number.isInteger(dish["quantity"]) || dish["quantity"] <= 0) {
             next({
               status: 400,
-              message: `Dish ${data[propertyName]} must have a quantity that is an integer greater than 0`,
+              message: `Dish ${dish.id} must have a quantity that is an integer greater than 0`,
             });
           }
         });
@@ -52,7 +55,7 @@ const hasIdParam = (req, res, next) => {
     return next();
   }
   next({
-    status: 400,
+    status: 404,
     message: `Order id is not found: ${orderId}`,
   });
 };
@@ -80,18 +83,38 @@ const getOrderById = (req, res, next) => {
 };
 
 const updateOrderById = (req, res, next) => {
+  const { orderId } = req.params;
   const order = res.locals.order;
-  const { data: { id, deliverTo, mobileNumber, dishes, quantity } = {} } =
-    req.body;
+  const {
+    data: { id, deliverTo, mobileNumber, dishes, quantity, status } = {},
+  } = req.body;
+  if (!status || status == "" || !["pending", "delivered"].includes(status)) {
+    next({
+      status: 400,
+      message: `status invalid`,
+    });
+  }
+  if (id === orderId || id === "" || id === undefined || id === null) {
+    order.deliverTo = deliverTo;
+    order.mobileNumber = mobileNumber;
+    order.dishes = dishes;
+    order.quantity = quantity;
+    res.status(200).json({ data: order });
+  }
 
-  order.deliverTo = deliverTo;
-  order.mobileNumber = mobileNumber;
-  order.dishes = dishes;
-  order.quantity = quantity;
-  res.status(201).json({ data: order });
+  next({
+    status: 400,
+    message: `Order id: ${(order, id)} does  not math param id: ${orderId}`,
+  });
 };
 
 const deleteOrderById = (req, res, next) => {
+  if (res.locals.order.status !== "pending") {
+    next({
+      status: 400,
+      message: `Order status still pending`,
+    });
+  }
   const { orderId } = req.params;
   const index = orders.findIndex((item) => item.id === Number(orderId));
   const deletedOrder = orders.splice(index, 1);

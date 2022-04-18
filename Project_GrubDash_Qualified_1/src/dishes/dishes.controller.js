@@ -41,7 +41,7 @@ const hasIdParam = (req, res, next) => {
     return next();
   }
   next({
-    status: 400,
+    status: 404,
     message: `Dish id is not found: ${dishId}`,
   });
 };
@@ -66,18 +66,24 @@ const createDish = (req, res, next) => {
 };
 
 const getDishById = (req, res, next) => {
-  res.status(201).json({ data: res.locals.dish });
+  res.status(200).json({ data: res.locals.dish });
 };
 
 const updateDishById = (req, res, next) => {
+  const { dishId } = req.params;
   const dish = res.locals.dish;
   const { data: { id, name, description, price, image_url } = {} } = req.body;
-
-  dish.name = name;
-  dish.description = description;
-  dish.price = price;
-  dish.image_url = image_url;
-  res.status(201).json({ data: dish });
+  if (id === dishId || !id) {
+    dish.name = name;
+    dish.description = description;
+    dish.price = price;
+    dish.image_url = image_url;
+    res.status(200).json({ data: dish });
+  }
+  next({
+    status: 400,
+    message: `Dish id does not match with ${id} params`,
+  });
 };
 
 module.exports = {
