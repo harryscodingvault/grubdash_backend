@@ -7,6 +7,7 @@ router
   .route("/:orderId")
   .get(controller.getOrderById)
   .put(controller.updateOrderById)
+  .delete(controller.deleteOrderById)
   .all(methodNotAllowed);
 
 router

@@ -91,6 +91,13 @@ const updateOrderById = (req, res, next) => {
   res.status(201).json({ data: order });
 };
 
+const deleteOrderById = (req, res, next) => {
+  const { orderId } = req.params;
+  const index = orders.findIndex((item) => item.id === Number(orderId));
+  const deletedOrder = orders.splice(index, 1);
+  res.status(204).json({ data: "deleted" });
+};
+
 module.exports = {
   list,
   createOrder: [
@@ -107,4 +114,5 @@ module.exports = {
     bodyHasProperty("dishes"),
     updateOrderById,
   ],
+  deleteOrderById: [hasIdParam, deleteOrderById],
 };
