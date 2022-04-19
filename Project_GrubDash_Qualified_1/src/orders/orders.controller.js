@@ -8,9 +8,9 @@ const nextId = require("../utils/nextId");
 
 // TODO: Implement the /orders handlers needed to make the tests pass
 
-// Functions utils
+// Handlers Utils
 
-const bodyHasProperty = (propertyName) => {
+function bodyHasProperty(propertyName) {
   return (req, res, next) => {
     const { data = {} } = req.body;
     if (data[propertyName] && data[propertyName] !== "") {
@@ -44,9 +44,9 @@ const bodyHasProperty = (propertyName) => {
           : `Order must include a ${propertyName}`,
     });
   };
-};
+}
 
-const hasIdParam = (req, res, next) => {
+function hasIdParam(req, res, next) {
   const { orderId } = req.params;
   const foundItem = orders.find((item) => item.id === orderId);
 
@@ -58,14 +58,14 @@ const hasIdParam = (req, res, next) => {
     status: 404,
     message: `Order id is not found: ${orderId}`,
   });
-};
+}
 
-// Functions routes
-const list = (req, res) => {
+// Routes Handlers
+function list(req, res) {
   res.json({ data: orders });
-};
+}
 
-const createOrder = (req, res, next) => {
+function createOrder(req, res, next) {
   const { data: { deliverTo, mobileNumber, dishes, quantity } = {} } = req.body;
   const newOrder = {
     id: nextId(),
@@ -76,13 +76,13 @@ const createOrder = (req, res, next) => {
   };
   orders.push(newOrder);
   res.status(201).json({ data: newOrder });
-};
+}
 
 const getOrderById = (req, res, next) => {
   res.json({ data: res.locals.order });
 };
 
-const updateOrderById = (req, res, next) => {
+function updateOrderById(req, res, next) {
   const { orderId } = req.params;
   const order = res.locals.order;
   const {
@@ -106,9 +106,9 @@ const updateOrderById = (req, res, next) => {
     status: 400,
     message: `Order id: ${(order, id)} does  not math param id: ${orderId}`,
   });
-};
+}
 
-const deleteOrderById = (req, res, next) => {
+function deleteOrderById(req, res, next) {
   if (res.locals.order.status !== "pending") {
     next({
       status: 400,
@@ -119,7 +119,7 @@ const deleteOrderById = (req, res, next) => {
   const index = orders.findIndex((item) => item.id === Number(orderId));
   const deletedOrder = orders.splice(index, 1);
   res.status(204).json({ data: "deleted" });
-};
+}
 
 module.exports = {
   list,
